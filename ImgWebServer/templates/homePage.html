@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图片查看器</title>
+</head>
+<body>
+    <h1 style="text-align:center">图片查看器</h1>
+    <div id="bp">
+    <ul class="prenext" style="text-align:center">
+        <button id="previous" style="width: 100px" type="button" onclick="post(-1)">上一张</button>
+        <button id="next" style="width: 100px" type="button" onclick="post(1)">下一张</button>
+        <button id="random" style="width: 100px" type="button" onclick="post(2)">随机选择一张</button>
+    </ul>
+    </div>
+    <div style="text-align:center" id="bpn">
+    <img id="Image" src="" />
+    </div>
+    <script type="text/javascript">
+        let count = 1
+        let maxindex = 0
+        function post(s) {
+            let postData;
+            let xmlhttp;
+            if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else {// code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP")
+            }
+            xmlhttp.open("POST", "/getTupian", true)
+            xmlhttp.setRequestHeader("Content-Type", "application/json")
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+                    let res = JSON.parse(xmlhttp.responseText)["data"]
+                    let msg = JSON.parse(xmlhttp.responseText)["msg"]
+                    let code = JSON.parse(xmlhttp.responseText)["code"]
+                    maxindex = JSON.parse(xmlhttp.responseText)["maxindex"]
+                    if (code !== 0) {
+                        alert(msg)
+                        if (code === -1)
+                            count = maxindex
+                    }
+                    else {
+                        document.getElementById("Image").src = res
+                    }
+
+                }
+            }
+            if (s === -1) {
+                postData = {
+                    "index": count - 1
+                }
+                count--
+            }
+            if (s === 0) {
+                postData = {
+                    "index": count
+                }
+            }
+            if (s === 1) {
+                postData = {
+                    "index": count + 1
+                }
+                count++
+            }
+            if (s === 2){
+                let index = Math.ceil(Math.random()*maxindex)
+                 postData = {
+                    "index": index
+                }
+                count = index
+            }
+            xmlhttp.send(JSON.stringify(postData))
+            if (count === 0) {
+                count = 1
+            }
+        }
+        post(0)
+    </script>
+</body>
+</html>
